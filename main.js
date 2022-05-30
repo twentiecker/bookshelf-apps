@@ -3,12 +3,13 @@
 // Kriteria 3: Dapat Memindahkan Buku antar Rak (v) 
 // Kriteria 4: Dapat Menghapus Data Buku (v)
 // Kriteria 5: Manfaatkan localStorage dalam Menyimpan Data Buku (v)
-// Optional 1: Tambahkan fitur pencarian untuk mem-filter buku yang ditampilkan pada rak sesuai dengan title buku yang dituliskan pada kolom pencarian
-// Optional 2: Berkreasilah dengan membuat proyek Bookshelf Apps tanpa menggunakan project starter
+// Optional 1: Tambahkan fitur pencarian untuk mem-filter buku yang ditampilkan pada rak sesuai dengan title buku yang dituliskan pada kolom pencarian (v)
+// Optional 2: Berkreasilah dengan membuat proyek Bookshelf Apps tanpa menggunakan project starter (v)
 // Optional 3: Menuliskan kode dengan bersih (v)
 // Optional 4: Terdapat improvisasi fitur seperti (pilih satu): Custom Dialog ketika menghapus buku dan Dapat meng-edit buku (v)
 
 const books = [];
+let searchBooks = [];
 const RENDER_EVENT = 'render-book';
 const SAVED_EVENT = 'saved-book';
 const STORAGE_KEY = 'BOOKSHELF_APPS';
@@ -33,7 +34,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
   searchForm.addEventListener('submit', function (event) {
     event.preventDefault();
-    filterBook();
+
+    const searchBookTitle = document.getElementById('searchBookTitle').value;
+    searchBook(searchBookTitle);
+
+    const incompleteBookshelfList = document.getElementById('incompleteBookshelfList');
+    incompleteBookshelfList.innerHTML = '';
+
+    const completeBookshelfList = document.getElementById('completeBookshelfList');
+    completeBookshelfList.innerHTML = '';
+    
+    for (const bookItem of searchBooks) {
+      const bookElement = makeBook(bookItem)
+      if (!bookItem.isComplete) {
+        incompleteBookshelfList.append(bookElement);
+      } else {
+        completeBookshelfList.append(bookElement);
+      }
+    }
   });
 
   if (isStorageExist()) {
@@ -67,8 +85,8 @@ function addBook() {
 
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
-  snackbar('Buku berhasil ditambahkan');
   resetForm();
+  snackbar('Buku "' + bookTitle + '" berhasil ditambahkan');
 }
 
 function resetForm() {
@@ -76,7 +94,9 @@ function resetForm() {
   document.getElementById('inputBookAuthor').value = '';
   document.getElementById('inputBookYear').value = '';
   document.getElementById('inputBookIsComplete').checked = false;
-  document.getElementById('bookSubmitStats').innerText = 'Belum selesai dibaca'
+  document.getElementById('bookSubmitStats').innerText = 'Belum selesai dibaca';
+  document.getElementById('searchBookTitle').value = '';
+  document.getElementById('inputBookTitle').focus();
 }
 
 function makeBook(bookObject) {
@@ -148,13 +168,24 @@ document.addEventListener(RENDER_EVENT, function () {
   const completeBookshelfList = document.getElementById('completeBookshelfList');
   completeBookshelfList.innerHTML = '';
 
-  for (const bookItem of books) {
-    const bookElement = makeBook(bookItem)
-    if (!bookItem.isComplete) {
-      incompleteBookshelfList.append(bookElement);
-    } else {
-      completeBookshelfList.append(bookElement);
-    }
+  if (searchBooks.length == 0 && document.getElementById('searchBookTitle').value == '') {
+    for (const bookItem of books) {
+      const bookElement = makeBook(bookItem)
+      if (!bookItem.isComplete) {
+        incompleteBookshelfList.append(bookElement);
+      } else {
+        completeBookshelfList.append(bookElement);
+      }
+    }  
+  } else {
+    for (const bookItem of searchBooks) {
+      const bookElement = makeBook(bookItem)
+      if (!bookItem.isComplete) {
+        incompleteBookshelfList.append(bookElement);
+      } else {
+        completeBookshelfList.append(bookElement);
+      }
+    }  
   }
 });
 
@@ -168,7 +199,7 @@ function addBookToCompleted(bookId) {
   bookTarget.isComplete = true;
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
-  snackbar('Boku telah selesai dibaca');
+  snackbar('Buku "' + bookTarget.title + '" telah selesai dibaca');
 }
 
 function findBook(bookId) {
@@ -191,24 +222,35 @@ function undoBookFromCompleted(bookId) {
   bookTarget.isComplete = false;
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
-  snackbar('Buku belum selesai dibaca');
+  snackbar('Buku "' + bookTarget.title + '" belum selesai dibaca');
 }
 
 function removeBookFromCompleted(bookId) {
   const bookTarget = findBookIndex(bookId);
-  
   if (bookTarget === -1) {
     return;
   }
-
+  snackbar('Buku "' + books[bookTarget].title + '" berhasil dihapus');
   books.splice(bookTarget, 1);
+
+  if (searchBooks.length != 0) {
+    const searchBookTarget = findSearchBookIndex(bookId);
+    if (searchBookTarget === -1) {
+      return;
+    }
+    searchBooks.splice(searchBookTarget, 1);
+  }
+
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
-  snackbar('Buku berhasil dihapus');
 }
 
 function findBookIndex(bookId) {
   return books.findIndex((book) => book.id === bookId); // find index of an object from array
+}
+
+function findSearchBookIndex(bookId) {
+  return searchBooks.findIndex((book) => book.id === bookId); // find index of an object from array
 }
 
 function saveData() {
@@ -228,9 +270,9 @@ function isStorageExist() {
   return true;
 }
 
-document.addEventListener(SAVED_EVENT, function () {
-  console.log(localStorage.getItem(STORAGE_KEY));
-});
+// document.addEventListener(SAVED_EVENT, function () {
+//   console.log(localStorage.getItem(STORAGE_KEY));
+// });
 
 function loadDataFromStorage() {
   const serializedData = localStorage.getItem(STORAGE_KEY);
@@ -245,8 +287,13 @@ function loadDataFromStorage() {
   document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
-function filterBook(params) {
-  alert('filter me')
+function searchBook(searchBookTitle) {
+  searchBooks = [];
+  for (const book of books) {
+    if (book.title.includes(searchBookTitle)) {
+      searchBooks.push(book);
+    }
+  }
 }
 
 function snackbar(message) {
