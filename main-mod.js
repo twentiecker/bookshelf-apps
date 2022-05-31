@@ -4,9 +4,9 @@
 // Kriteria 4: Dapat Menghapus Data Buku (v)
 // Kriteria 5: Manfaatkan localStorage dalam Menyimpan Data Buku (v)
 // Optional 1: Tambahkan fitur pencarian untuk mem-filter buku yang ditampilkan pada rak sesuai dengan title buku yang dituliskan pada kolom pencarian (v)
-// Optional 2: Berkreasilah dengan membuat proyek Bookshelf Apps tanpa menggunakan project starter
+// Optional 2: Berkreasilah dengan membuat proyek Bookshelf Apps tanpa menggunakan project starter (v)
 // Optional 3: Menuliskan kode dengan bersih (v)
-// Optional 4: Terdapat improvisasi fitur seperti (pilih satu): Custom Dialog ketika menghapus buku dan Dapat meng-edit buku (v)
+// Optional 4: Terdapat improvisasi fitur seperti (pilih satu): Custom Dialog ketika menghapus buku atau Dapat meng-edit buku (v)
 
 const books = [];
 let searchBooks = [];
@@ -18,9 +18,9 @@ const bookSubmitStats = document.getElementById('bookSubmitStats');
 
 document.getElementById('inputBookIsComplete').addEventListener('click', function () {
   if (document.getElementById('inputBookIsComplete').checked) {
-    bookSubmitStats.innerText = 'Selesai dibaca';
+    bookSubmitStats.innerHTML = '<b>"Finished reading"</b>';
   } else {
-    bookSubmitStats.innerText = 'Belum selesai dibaca';
+    bookSubmitStats.innerHTML = '<b>"Unfinished reading"</b>';
   }
 });
 
@@ -111,7 +111,7 @@ function addBook() {
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
   resetForm();
-  snackbar('Buku "' + bookTitle + '" berhasil ditambahkan');
+  liveToast('The book of <b>"' + bookTitle + '"</b> has been successfully inserted');
 }
 
 function resetForm() {
@@ -119,41 +119,59 @@ function resetForm() {
   document.getElementById('inputBookAuthor').value = '';
   document.getElementById('inputBookYear').value = '';
   document.getElementById('inputBookIsComplete').checked = false;
-  document.getElementById('bookSubmitStats').innerText = 'Belum selesai dibaca';
+  document.getElementById('bookSubmitStats').innerHTML = '<b>"Unfinished reading"</b>';
   document.getElementById('inputBookTitle').focus();
 }
 
 function makeBook(bookObject) {
-  const bookTitle = document.createElement('h3');
+  const bookTitle = document.createElement('h5');
   bookTitle.innerText = bookObject.title;
+  bookTitle.classList.add('card-title');
 
   const bookAuthor = document.createElement('p');
-  bookAuthor.innerText = 'Penulis: ' + bookObject.author;
+  bookAuthor.innerText = 'Author: ' + bookObject.author;
+  bookAuthor.classList.add('card-text');
 
-  const bookYear = document.createElement('p');
-  bookYear.innerText = 'Tahun: ' + bookObject.year;
+  const bookYear = document.createElement('small');
+  bookYear.innerText = 'Year: ' + bookObject.year;
+  bookYear.classList.add('text-muted');
+
+  const containerBookYear = document.createElement('p');
+  containerBookYear.classList.add('card-text');
+  containerBookYear.appendChild(bookYear);
 
   const actionContainer = document.createElement('div');
   actionContainer.classList.add('action');
 
-  const container = document.createElement('article');
-  container.classList.add('book_item');
-  container.append(bookTitle, bookAuthor, bookYear, actionContainer);
-  container.classList.add('book_item');
-  container.setAttribute('id', `book-${bookObject.id}`);
+  const imgContainer = document.createElement('div');
+  imgContainer.classList.add('col-md-5');
+  imgContainer.classList.add('mt-2');
 
   if (bookObject.isComplete) {
-    const undoButton = document.createElement('button');
-    undoButton.classList.add('green');
-    undoButton.innerText = 'Belum selesai dibaca';
+    const imageBook = document.createElement('img');
+    imageBook.setAttribute('src', 'assets/light-green-book.png');
+    imageBook.classList.add('rounded');
+    imageBook.setAttribute('width', '156px');
+    imageBook.setAttribute('height', '175px');
 
+    imgContainer.append(imageBook);
+
+    const undoButton = document.createElement('button');
+    undoButton.classList.add('btn');
+    undoButton.classList.add('btn-outline-success');
+    undoButton.classList.add('bi');
+    undoButton.classList.add('bi-arrow-counterclockwise');
+    
     undoButton.addEventListener('click', function () {
       undoBookFromCompleted(bookObject.id);
     });
 
     const trashButton = document.createElement('button');
-    trashButton.classList.add('red');
-    trashButton.innerText = 'Hapus buku';
+    trashButton.classList.add('btn');
+    trashButton.classList.add('btn-outline-danger');
+    trashButton.classList.add('bi');
+    trashButton.classList.add('bi-trash2-fill');
+    trashButton.classList.add('ml-2');
 
     trashButton.addEventListener('click', function () {
       removeBookFromCompleted(bookObject.id);
@@ -162,17 +180,30 @@ function makeBook(bookObject) {
     actionContainer.appendChild(undoButton);
     actionContainer.appendChild(trashButton);
   } else {
+    const imageBook = document.createElement('img');
+    imageBook.setAttribute('src', 'assets/cyan-book.png');
+    imageBook.classList.add('rounded');
+    imageBook.setAttribute('width', '156px');
+    imageBook.setAttribute('height', '175px');
+
+    imgContainer.append(imageBook);
+
     const checkButton = document.createElement('button');
-    checkButton.classList.add('green');
-    checkButton.innerText = 'Selesai dibaca';
+    checkButton.classList.add('btn');
+    checkButton.classList.add('btn-outline-primary');
+    checkButton.classList.add('bi');
+    checkButton.classList.add('bi-check-lg');
 
     checkButton.addEventListener('click', function () {
       addBookToCompleted(bookObject.id);
     });
 
     const trashButton = document.createElement('button');
-    trashButton.classList.add('red');
-    trashButton.innerText = 'Hapus buku';
+    trashButton.classList.add('btn');
+    trashButton.classList.add('btn-outline-danger');
+    trashButton.classList.add('bi');
+    trashButton.classList.add('bi-trash2-fill');
+    trashButton.classList.add('ml-2');
 
     trashButton.addEventListener('click', function () {
       removeBookFromCompleted(bookObject.id);
@@ -181,6 +212,34 @@ function makeBook(bookObject) {
     actionContainer.appendChild(checkButton);
     actionContainer.appendChild(trashButton);
   }
+
+  const card = document.createElement('div');
+  card.classList.add('card-body');
+  card.append(bookTitle, bookAuthor, containerBookYear, actionContainer);
+  
+  const cardBodyContainer = document.createElement('div');
+  cardBodyContainer.classList.add('col-md-7');
+  cardBodyContainer.append(card);
+
+  const guttersContainer = document.createElement('div');
+  guttersContainer.classList.add('row');
+  guttersContainer.classList.add('no-gutters');
+  guttersContainer.append(imgContainer, cardBodyContainer);
+
+  const cardContainer = document.createElement('div');
+  cardContainer.classList.add('card');
+  cardContainer.classList.add('mb-3');
+  cardContainer.classList.add('mt-3');
+  cardContainer.classList.add('shadow');
+  cardContainer.classList.add('bg-white');
+  cardContainer.classList.add('rounded');
+  cardContainer.append(guttersContainer);
+  
+  const container = document.createElement('div');
+  container.classList.add('col');
+  container.classList.add('mb-4');
+  container.append(cardContainer);
+  container.setAttribute('id', `book-${bookObject.id}`);
 
   return container;
 }
@@ -194,7 +253,7 @@ document.addEventListener(RENDER_EVENT, function () {
 
   if (searchBooks.length == 0 && document.getElementById('searchBookTitle').value == '') {
     for (const bookItem of books) {
-      const bookElement = makeBook(bookItem)
+      const bookElement = makeBook(bookItem);
       if (!bookItem.isComplete) {
         incompleteBookshelfList.append(bookElement);
       } else {
@@ -203,7 +262,7 @@ document.addEventListener(RENDER_EVENT, function () {
     }  
   } else {
     for (const bookItem of searchBooks) {
-      const bookElement = makeBook(bookItem)
+      const bookElement = makeBook(bookItem);
       if (!bookItem.isComplete) {
         incompleteBookshelfList.append(bookElement);
       } else {
@@ -223,7 +282,7 @@ function addBookToCompleted(bookId) {
   bookTarget.isComplete = true;
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
-  snackbar('Buku "' + bookTarget.title + '" telah selesai dibaca');
+  liveToast('The book of <b>"' + bookTarget.title + '"</b> has finished reading');
 }
 
 function findBook(bookId) {
@@ -246,7 +305,7 @@ function undoBookFromCompleted(bookId) {
   bookTarget.isComplete = false;
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
-  snackbar('Buku "' + bookTarget.title + '" belum selesai dibaca');
+  liveToast('The book of <b>"' + bookTarget.title + '"</b> not finished reading');
 }
 
 function removeBookFromCompleted(bookId) {
@@ -254,7 +313,7 @@ function removeBookFromCompleted(bookId) {
   if (bookTarget === -1) {
     return;
   }
-  snackbar('Buku "' + books[bookTarget].title + '" berhasil dihapus');
+  liveToast('The book of <b>"' + books[bookTarget].title + '"</b> have been successfully deleted');
   books.splice(bookTarget, 1);
 
   if (searchBooks.length != 0) {
@@ -316,16 +375,12 @@ function searchBook(searchBookTitle) {
   }
 }
 
-function snackbar(message) {
-  // Get the snackbar DIV
-  var x = document.getElementById("snackbar");
+function liveToast(message) {
+  const toastShow = document.getElementById('liveToast');
+  toastShow.className = 'toast show';
+  
+  const toastMsg = document.querySelector('.toast-body');
+  toastMsg.innerHTML = message;
 
-  // Add the "show" class to DIV
-  x.className = "show";
-
-  // After 3 seconds, remove the show class from DIV
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-
-  // Write a message
-  x.innerText = message;
+  setTimeout(function() { toastShow.className = toastShow.className.replace("toast show", "toast hide"); }, 3000);
 }
