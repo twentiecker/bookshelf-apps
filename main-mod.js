@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } else {
       searchBooks = [];
+      flagSearchBooks = false;
       const incompleteBookshelfList = document.getElementById('incompleteBookshelfList');
       incompleteBookshelfList.innerHTML = '';
 
@@ -99,6 +100,10 @@ function addBook() {
   const bookYear = parseInt(document.getElementById('inputBookYear').value);
   const bookIsComplete = document.getElementById('inputBookIsComplete').checked;
   const searchBookTitle = document.getElementById('searchBookTitle').value; 
+
+  if (!flagSearchBooks) {
+    document.getElementById('searchBookTitle').value = '';
+  }
   
   const generatedID = generateId();
   const bookObject = generateBookObject(generatedID, bookTitle, bookAuthor, bookYear, bookIsComplete);
