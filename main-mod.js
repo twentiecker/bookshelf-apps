@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const searchBookTitle = document.getElementById('searchBookTitle').value;
     const na1 = naContent();
-    const na2= naContent();
+    const na2 = naContent();
 
     if (searchBookTitle != '') {
       flagSearchBooks = true;
@@ -281,7 +281,7 @@ function makeBook(bookObject) {
 
 document.addEventListener(RENDER_EVENT, function () {
   const na1 = naContent();
-  const na2= naContent();
+  const na2 = naContent();
   const incompleteBookshelfList = document.getElementById('incompleteBookshelfList');
   incompleteBookshelfList.innerHTML = '';
   incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-3', 'row-cols-lg-12');
@@ -302,12 +302,6 @@ document.addEventListener(RENDER_EVENT, function () {
       completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
       completeBookshelfList.innerHTML = '';        
     }
-
-    // incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
-    // incompleteBookshelfList.innerHTML = '';
-
-    // completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
-    // completeBookshelfList.innerHTML = '';       
     
     for (const bookItem of books) {
       const bookElement = makeBook(bookItem);
