@@ -250,13 +250,35 @@ function makeBook(bookObject) {
 }
 
 document.addEventListener(RENDER_EVENT, function () {
+  const na1 = naContent();
+  const na2= naContent();
   const incompleteBookshelfList = document.getElementById('incompleteBookshelfList');
   incompleteBookshelfList.innerHTML = '';
+  incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-3', 'row-cols-lg-12');
+  incompleteBookshelfList.append(na1);
 
   const completeBookshelfList = document.getElementById('completeBookshelfList');
   completeBookshelfList.innerHTML = '';
+  completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-3', 'row-cols-lg-12');
+  completeBookshelfList.append(na2);
 
-  if (searchBooks.length == 0 && document.getElementById('searchBookTitle').value == '') {
+  if (searchBooks.length == 0 && document.getElementById('searchBookTitle').value == '' && books.length != 0) {
+    if (books.some((book) => book.isComplete === false)) {
+      incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+      incompleteBookshelfList.innerHTML = '';        
+    }
+
+    if (books.some((book) => book.isComplete === true)) {
+      completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+      completeBookshelfList.innerHTML = '';        
+    }
+
+    // incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+    // incompleteBookshelfList.innerHTML = '';
+
+    // completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+    // completeBookshelfList.innerHTML = '';       
+    
     for (const bookItem of books) {
       const bookElement = makeBook(bookItem);
       if (!bookItem.isComplete) {
@@ -276,6 +298,26 @@ document.addEventListener(RENDER_EVENT, function () {
     }  
   }
 });
+
+function naContent() {
+  const naText = document.createElement('h5');
+  naText.innerText = 'Data not available';
+
+  const naTextDiv = document.createElement('div');
+  naTextDiv.classList.add('text-center');
+  naTextDiv.appendChild(naText);
+
+  const naImage = document.createElement('img');
+  naImage.setAttribute('src', 'assets/undraw_No_data_re_kwbl.png');
+  naImage.classList.add('img-fluid');
+  naImage.setAttribute('width', '30%');
+
+  const naContainer = document.createElement('div');
+  naContainer.classList.add('text-center');
+  naContainer.append(naImage, naTextDiv);
+
+  return naContainer;
+}
 
 function addBookToCompleted(bookId) {
   const bookTarget = findBook(bookId);
@@ -387,5 +429,5 @@ function liveToast(message) {
   const toastMsg = document.querySelector('.toast-body');
   toastMsg.innerHTML = message;
 
-  setTimeout(function() { toastShow.className = toastShow.className.replace("toast show", "toast hide"); }, 3000);
+  setTimeout(function() { toastShow.className = toastShow.className.replace('toast show', 'toast hide'); }, 3000);
 }
