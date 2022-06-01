@@ -37,16 +37,33 @@ document.addEventListener('DOMContentLoaded', function () {
     event.preventDefault();
 
     const searchBookTitle = document.getElementById('searchBookTitle').value;
+    const na1 = naContent();
+    const na2= naContent();
+
     if (searchBookTitle != '') {
       flagSearchBooks = true;
       searchBook(searchBookTitle);
-
+      
       const incompleteBookshelfList = document.getElementById('incompleteBookshelfList');
       incompleteBookshelfList.innerHTML = '';
+      incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-3', 'row-cols-lg-12');
+      incompleteBookshelfList.append(na1);
 
       const completeBookshelfList = document.getElementById('completeBookshelfList');
       completeBookshelfList.innerHTML = '';
-      
+      completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-3', 'row-cols-lg-12');
+      completeBookshelfList.append(na2);
+
+      if (searchBooks.some((book) => book.isComplete === false)) {
+        incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+        incompleteBookshelfList.innerHTML = '';        
+      }
+  
+      if (searchBooks.some((book) => book.isComplete === true)) {
+        completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+        completeBookshelfList.innerHTML = '';        
+      }
+
       for (const bookItem of searchBooks) {
         const bookElement = makeBook(bookItem)
         if (!bookItem.isComplete) {
@@ -58,11 +75,24 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       searchBooks = [];
       flagSearchBooks = false;
-      const incompleteBookshelfList = document.getElementById('incompleteBookshelfList');
-      incompleteBookshelfList.innerHTML = '';
 
-      const completeBookshelfList = document.getElementById('completeBookshelfList');
+      incompleteBookshelfList.innerHTML = '';
+      incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-3', 'row-cols-lg-12');
+      incompleteBookshelfList.append(na1);
+
       completeBookshelfList.innerHTML = '';
+      completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-3', 'row-cols-lg-12');
+      completeBookshelfList.append(na2);
+
+      if (books.some((book) => book.isComplete === false)) {
+        incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+        incompleteBookshelfList.innerHTML = '';        
+      }
+  
+      if (books.some((book) => book.isComplete === true)) {
+        completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+        completeBookshelfList.innerHTML = '';        
+      }
       
       for (const bookItem of books) {
         const bookElement = makeBook(bookItem)
@@ -288,6 +318,16 @@ document.addEventListener(RENDER_EVENT, function () {
       }
     }  
   } else {
+    if (searchBooks.some((book) => book.isComplete === false)) {
+      incompleteBookshelfList.className = incompleteBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+      incompleteBookshelfList.innerHTML = '';        
+    }
+
+    if (searchBooks.some((book) => book.isComplete === true)) {
+      completeBookshelfList.className = completeBookshelfList.className.replace('row-cols-lg-12', 'row-cols-lg-3');
+      completeBookshelfList.innerHTML = '';        
+    }
+
     for (const bookItem of searchBooks) {
       const bookElement = makeBook(bookItem);
       if (!bookItem.isComplete) {
