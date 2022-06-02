@@ -73,7 +73,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      liveToast('Books containing the word <b>"' + searchBookTitle + '"</b> have been found');
+      if (searchBooks.length == 0) {
+        liveToast('Books containing the word <b>"' + searchBookTitle + '"</b> are not found');        
+      } else {
+        liveToast('Books containing the word <b>"' + searchBookTitle + '"</b> have been found');
+      }
     } else {
       searchBooks = [];
       flagSearchBooks = false;
