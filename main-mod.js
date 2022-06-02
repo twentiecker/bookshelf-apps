@@ -72,6 +72,8 @@ document.addEventListener('DOMContentLoaded', function () {
           completeBookshelfList.append(bookElement);
         }
       }
+
+      liveToast('Books containing the word <b>"' + searchBookTitle + '"</b> have been found');
     } else {
       searchBooks = [];
       flagSearchBooks = false;
@@ -102,6 +104,8 @@ document.addEventListener('DOMContentLoaded', function () {
           completeBookshelfList.append(bookElement);
         }
       }
+
+      liveToast('All books have been displayed on the shelf below');
     }
   });
 
@@ -386,7 +390,7 @@ function undoBookFromCompleted(bookId) {
   bookTarget.isComplete = false;
   document.dispatchEvent(new Event(RENDER_EVENT));
   saveData();
-  liveToast('The book of <b>"' + bookTarget.title + '"</b> not finished reading');
+  liveToast('The book of <b>"' + bookTarget.title + '"</b> is not finished reading');
 }
 
 function removeBookFromCompleted(bookId) {
